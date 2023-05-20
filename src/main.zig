@@ -28,8 +28,8 @@ pub fn main() !void {
     const allocator = gpa.allocator();
     var args = try std.process.argsWithAllocator(allocator);
 
-    const skipped = args.skip();
-    std.debug.assert(skipped);
+    const did_skip = args.skip();
+    std.debug.assert(did_skip);
 
     while (args.next()) |arg| {
         try printFile(arg);
