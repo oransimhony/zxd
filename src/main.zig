@@ -6,7 +6,12 @@ const BUF_SIZE: usize = hexdump.BYTES_IN_LINE * 256;
 const writer = std.io.getStdErr().writer();
 
 fn printFile(path: []const u8) !void {
-    const file = try std.fs.cwd().openFile(path, .{});
+    var file: std.fs.File = undefined;
+    if (std.mem.eql(u8, path, hexdump.STDIN_PATH)) {
+        file = std.io.getStdIn();
+    } else {
+        file = try std.fs.cwd().openFile(path, .{});
+    }
     defer file.close();
 
     try hexdump.printFilePath(path);

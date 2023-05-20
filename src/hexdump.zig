@@ -13,6 +13,9 @@ const NUMBER_OF_BYTES_BEFORE_SPACE: usize = 2;
 
 const NULL_BYTE: u8 = 0;
 
+/// The path that denotes STDIN, like many common utilities.
+pub const STDIN_PATH: []const u8 = "-";
+
 /// Section Seperator can be changed but must not be more than two bytes in length.
 const sectionSeperator = "|";
 comptime {
@@ -126,7 +129,11 @@ pub fn printFilePath(path: []const u8) !void {
     _ = try writer.write(formatted);
     try printColor(filePathColor);
     const fmt = std.fmt.comptimePrint("{{s: <{}}}", .{TOTAL_LENGTH - formatted.len - 1 - sectionSeperator.len});
-    try writer.print(fmt, .{path});
+    if (std.mem.eql(u8, path, STDIN_PATH)) {
+        try writer.print(fmt, .{"<STDIN>"});
+    } else {
+        try writer.print(fmt, .{path});
+    }
     try printColor(.Reset);
     try printColor(.Bold);
     _ = try writer.print(" {s}\n", .{sectionSeperator});
