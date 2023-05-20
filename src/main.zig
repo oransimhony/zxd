@@ -21,12 +21,11 @@ fn printFile(path: []const u8) !void {
     var buf: [BUF_SIZE]u8 = undefined;
     var bytes_read = try file.readAll(&buf);
     while (bytes_read >= buf.len) {
-        index += bytes_read;
         try hexdump.printHexDump(index, buf[0..bytes_read]);
+        index += bytes_read;
         bytes_read = try file.readAll(&buf);
     }
 
-    index += bytes_read;
     try hexdump.printHexDump(index, buf[0..bytes_read]);
 }
 
