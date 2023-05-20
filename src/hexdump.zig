@@ -2,7 +2,8 @@
 //! This module supports printing in color if the underlying TTY supports it.
 const std = @import("std");
 
-const BYTES_IN_LINE: usize = 16;
+/// The number of bytes dumped in one line.
+pub const BYTES_IN_LINE: usize = 16;
 
 const ADDRESS_PRINTING_LENGTH: usize = 8;
 const BYTE_PRINTING_LENGTH: usize = 2;
@@ -10,8 +11,8 @@ const BYTE_PRINTING_LENGTH: usize = 2;
 const NUMBER_OF_SPACES_IN_LINE: usize = 8;
 const NUMBER_OF_BYTES_BEFORE_SPACE: usize = 2;
 
+/// Section Seperator can be changed but must not be more than two bytes in length.
 const sectionSeperator = "|";
-
 comptime {
     std.debug.assert(sectionSeperator.len <= 2);
 }

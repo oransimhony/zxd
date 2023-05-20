@@ -34,5 +34,7 @@ pub fn main() !void {
     while (args.next()) |arg| {
         try printFile(arg);
     }
+
+    // Also print it as the last thing in the output, to help the user notice the different parts.
     try hexdump.printTableHeader();
 }
