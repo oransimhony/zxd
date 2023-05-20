@@ -1,6 +1,7 @@
 const std = @import("std");
 const hexdump = @import("hexdump.zig");
-const BUF_SIZE: usize = 16 * 4096;
+
+const BUF_SIZE: usize = hexdump.BYTES_IN_LINE * 256;
 
 fn printFile(path: []const u8) !void {
     const file = try std.fs.cwd().openFile(path, .{});
