@@ -11,6 +11,8 @@ const BYTE_PRINTING_LENGTH: usize = 2;
 const NUMBER_OF_SPACES_IN_LINE: usize = 8;
 const NUMBER_OF_BYTES_BEFORE_SPACE: usize = 2;
 
+const NULL_BYTE: u8 = 0;
+
 /// Section Seperator can be changed but must not be more than two bytes in length.
 const sectionSeperator = "|";
 comptime {
@@ -37,6 +39,7 @@ const writer = stdout.writer();
 const Color = std.debug.TTY.Color;
 const addressColor = Color.Green;
 const printableColor = Color.Yellow;
+const nullByteColor = Color.Red;
 const nonPrintableColor = Color.Cyan;
 const filePathColor = Color.Yellow;
 
@@ -67,7 +70,11 @@ fn printHexDumpBody(contents: []const u8) !void {
     for (contents, 0..) |byte, i| {
         var non_printable = !std.ascii.isPrint(byte);
         if (non_printable) {
-            try printColor(nonPrintableColor);
+            if (byte == NULL_BYTE) {
+                try printColor(nullByteColor);
+            } else {
+                try printColor(nonPrintableColor);
+            }
         } else {
             try printColor(printableColor);
         }
@@ -93,7 +100,11 @@ fn printHexDumpTrailer(contents: []const u8) !void {
             try printColor(printableColor);
             try writer.print("{c}", .{byte});
         } else {
-            try printColor(nonPrintableColor);
+            if (byte == NULL_BYTE) {
+                try printColor(nullByteColor);
+            } else {
+                try printColor(nonPrintableColor);
+            }
             _ = try writer.write(".");
         }
         try printColor(.Reset);
