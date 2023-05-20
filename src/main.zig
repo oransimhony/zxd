@@ -3,6 +3,8 @@ const hexdump = @import("hexdump.zig");
 
 const BUF_SIZE: usize = hexdump.BYTES_IN_LINE * 256;
 
+const writer = std.io.getStdErr().writer();
+
 fn printFile(path: []const u8) !void {
     const file = try std.fs.cwd().openFile(path, .{});
     defer file.close();
@@ -33,9 +35,13 @@ pub fn main() !void {
     std.debug.assert(did_skip);
 
     while (args.next()) |arg| {
-        try printFile(arg);
+        printFile(arg) catch |err| switch (err) {
+            error.IsDir => try writer.print("error: {s} is a dir and not a file!\n", .{arg}),
+            error.FileNotFound => try writer.print("error: file not found: {s}\n", .{arg}),
+            else => {},
+        };
     }
 
     // Also print it as the last thing in the output, to help the user notice the different parts.
-    try hexdump.printTableHeader();
+    hexdump.printTableHeader() catch {};
 }
