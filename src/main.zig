@@ -39,13 +39,12 @@ pub fn main() !void {
     std.debug.assert(did_skip);
 
     while (args.next()) |arg| {
-        printFile(arg) catch |err| switch (err) {
-            error.IsDir => try writer.print("error: {s} is a dir and not a file!\n", .{arg}),
-            error.FileNotFound => try writer.print("error: file not found: {s}\n", .{arg}),
-            else => {},
+        printFile(arg) catch |err| {
+            try writer.print("Cannot print file {s}: Got error {s}\n", .{ arg, @errorName(err) });
+            // Skip printing the table header if failed to print the file.
+            continue;
         };
+        // Also print it as the last thing in the output, to help the user notice the different parts.
+        hexdump.printTableHeader() catch {};
     }
-
-    // Also print it as the last thing in the output, to help the user notice the different parts.
-    hexdump.printTableHeader() catch {};
 }
