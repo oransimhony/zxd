@@ -39,23 +39,26 @@ const TOTAL_LENGTH = ADDRESS_SECTION_LENGTH + HEX_CONTENTS_SECTION_LENGTH + TEXT
 const stdout = std.io.getStdOut();
 const writer = stdout.writer();
 
-const Color = std.debug.TTY.Color;
-const addressColor = Color.Green;
-const printableColor = Color.Yellow;
-const nullByteColor = Color.Red;
-const nonPrintableColor = Color.Cyan;
-const filePathColor = Color.Yellow;
+const tty = std.io.tty;
+const Color = tty.Color;
+const addressColor = Color.green;
+const printableColor = Color.yellow;
+const nullByteColor = Color.red;
+const nonPrintableColor = Color.cyan;
+const filePathColor = Color.yellow;
+const resetColor = Color.reset;
+const boldColor = Color.bold;
 
-var tty_config: ?std.debug.TTY.Config = null;
-var currentColor = std.debug.TTY.Color.Reset;
+var tty_config: ?tty.Config = null;
+var currentColor = tty.Color.reset;
 
-fn printColor(color: std.debug.TTY.Color) !void {
+fn printColor(color: tty.Color) !void {
     if (color == currentColor) {
         return;
     }
 
     if (tty_config == null) {
-        tty_config = std.debug.detectTTYConfig(stdout);
+        tty_config = std.io.tty.detectConfig(stdout);
     }
 
     try tty_config.?.setColor(writer, color);
@@ -66,7 +69,7 @@ fn printHexDumpHeader(offset: usize) !void {
     try printColor(addressColor);
     const fmt = std.fmt.comptimePrint("0x{{x:0>{}}}: ", .{ADDRESS_PRINTING_LENGTH});
     try writer.print(fmt, .{offset});
-    try printColor(.Reset);
+    try printColor(resetColor);
 }
 
 fn printHexDumpBody(contents: []const u8) !void {
@@ -83,7 +86,7 @@ fn printHexDumpBody(contents: []const u8) !void {
         }
         const fmt = std.fmt.comptimePrint("{{x:0>{}}}", .{BYTE_PRINTING_LENGTH});
         try writer.print(fmt, .{byte});
-        try printColor(.Reset);
+        try printColor(resetColor);
         if (i % NUMBER_OF_BYTES_BEFORE_SPACE == (NUMBER_OF_BYTES_BEFORE_SPACE - 1)) {
             _ = try writer.write(" ");
         }
@@ -110,7 +113,7 @@ fn printHexDumpTrailer(contents: []const u8) !void {
             }
             _ = try writer.write(".");
         }
-        try printColor(.Reset);
+        try printColor(resetColor);
     }
 
     // Add padding before the closing of Text Contents Section
@@ -124,7 +127,7 @@ fn printHexDumpTrailer(contents: []const u8) !void {
 
 /// Prints a file path in a format that matches the HexDump table.
 pub fn printFilePath(path: []const u8) !void {
-    try printColor(.Bold);
+    try printColor(boldColor);
     const formatted = std.fmt.comptimePrint("{s} File Path: ", .{sectionSeperator});
     _ = try writer.write(formatted);
     try printColor(filePathColor);
@@ -134,18 +137,18 @@ pub fn printFilePath(path: []const u8) !void {
     } else {
         try writer.print(fmt, .{path});
     }
-    try printColor(.Reset);
-    try printColor(.Bold);
+    try printColor(resetColor);
+    try printColor(boldColor);
     _ = try writer.print(" {s}\n", .{sectionSeperator});
-    try printColor(.Reset);
+    try printColor(resetColor);
 }
 
 /// Prints a breakdown of the different fields in the hexdump.
 pub fn printTableHeader() !void {
-    try printColor(.Bold);
+    try printColor(boldColor);
     const fmt = std.fmt.comptimePrint("{0s}{{s: <{1}}}{0s}{{s: ^{2}}}{0s}{{s: >{3}}}{0s}\n", .{ sectionSeperator, ADDRESS_SECTION_LENGTH - 2 * sectionSeperator.len, HEX_CONTENTS_SECTION_LENGTH, TEXT_CONTENTS_SECTION_LENGTH - 2 * sectionSeperator.len });
     try writer.print(fmt, .{ "Address", "Hex Contents", "Text Contents" });
-    try printColor(.Reset);
+    try printColor(resetColor);
 }
 
 fn printHexDumpLine(offset: usize, index: usize, contents: []const u8) !void {
