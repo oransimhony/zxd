@@ -152,7 +152,7 @@ pub fn printTableHeader() !void {
 }
 
 fn printHexDumpLine(offset: usize, index: usize, contents: []const u8) !void {
-    const last_index = std.math.min(index + BYTES_IN_LINE, contents.len);
+    const last_index = @min(index + BYTES_IN_LINE, contents.len);
     const current_body = contents[index..last_index];
 
     try printHexDumpHeader(offset + index);
